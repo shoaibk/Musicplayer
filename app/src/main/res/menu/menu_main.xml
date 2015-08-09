@@ -9,7 +9,7 @@
         android:title="@string/action_shuffle"
         app:showAsAction="always" />
     <item
-        android:id="@+id/actions_end"
+        android:id="@+id/action_end"
         android:icon="@drawable/android_music_player_end"
         android:orderInCategory="2"
         app:showAsAction="ifRoom"
