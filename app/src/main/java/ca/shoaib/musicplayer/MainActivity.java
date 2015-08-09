@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
     private Intent playIntent;
     private boolean musicBound = false;
     private MusicController controller;
+    private boolean paused = false, playbackPaused = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +74,27 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        paused = true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (paused) {
+            setController();
+            paused = false;
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        controller.hide();
+        super.onStop();
+    }
+
     public void getSongList() {
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -95,6 +117,11 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
     public void songPicked(View view) {
         musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
         musicSrv.playSong();
+        if(playbackPaused) {
+            setController();
+            playbackPaused = false;
+        }
+        controller.show(0);
     }
 
     @Override
@@ -113,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
 
         switch (item.getItemId()) {
             case R.id.action_shuffle:
-                //shuffle
+                musicSrv.setShuffle();
                 break;
             case R.id.action_end:
                 stopService(playIntent);
@@ -139,6 +166,7 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
 
     @Override
     public void pause() {
+        playbackPaused = true;
         musicSrv.pausePlayer();
     }
 
@@ -216,11 +244,19 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
 
     private void playNext() {
         musicSrv.playNext();
+        if(playbackPaused) {
+            setController();
+            playbackPaused = false;
+        }
         controller.show(0);
     }
 
     private void playPrev() {
         musicSrv.playPrev();
+        if(playbackPaused) {
+            setController();
+            playbackPaused = false;
+        }
         controller.show(0);
     }
 }
